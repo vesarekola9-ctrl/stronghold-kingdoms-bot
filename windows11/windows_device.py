@@ -109,6 +109,8 @@ class WindowsDevice:
             bounds = self.templates.filter_buttons[i]
             detected = self.get_text_from_coords(bounds["top_left"],bounds["right_bottom"])
             if text.lower() in detected.lower():
-                self.click_coordinates_and_sleep(bounds["top_left"])
+                center = {"x": (bounds["top_left"]["x"] + bounds["right_bottom"]["x"]) // 2,
+                          "y": (bounds["top_left"]["y"] + bounds["right_bottom"]["y"]) // 2}
+                self.click_coordinates_and_sleep(center)
                 return True
         raise RuntimeError(f"Suodatinta {text} ei löydy. Avaa oikea näkymä ja tarkista resoluutio.")
