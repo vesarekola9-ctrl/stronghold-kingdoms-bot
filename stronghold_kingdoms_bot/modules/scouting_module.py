@@ -11,19 +11,20 @@ import cv2
 
 
 class ScoutingModule:
-    def __init__(self):
+    def __init__(self, device_service=None, config_override=None, return_home=True):
         self.base_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '..', '..'))
 
         self.config_service = ConfigService()
-        config = self.config_service.load_config()
+        config = config_override if config_override is not None else self.config_service.load_config()
         self.device_address = config['device_address']
         self.number_of_villages = config['number_of_villages']
 
         self.template_service = TemplateService(self.base_path)
         self.device_service = DeviceService(
             self.device_address, self.template_service)
-        self.utils_service = UtilsService(self.device_service)
+        self.utils_service = UtilsService(self.device_service) if return_home else None
+        self.return_home = return_home
 
         self.GAME_COORDS = {
             'NEXT_VILLAGE': {'x': 893, 'y': 844},
@@ -94,7 +95,8 @@ class ScoutingModule:
                 else:
                     logger.info(f"No action needed for Village {i + 1}")
 
-            self.utils_service.go_to_village_1()
+            if self.return_home:
+                self.utils_service.go_to_village_1()
 
         except KeyboardInterrupt:
             logger.info("\nBot stopped by user (Ctrl+C)")
