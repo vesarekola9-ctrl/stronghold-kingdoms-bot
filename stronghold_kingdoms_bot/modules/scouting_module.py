@@ -35,6 +35,8 @@ class ScoutingModule:
         }
 
         self.template_service.cache_templates()
+        if device_service is not None:
+            self.device_service.templates = self.template_service
 
     def process_village(self, templates):
 
