@@ -75,25 +75,29 @@ class WindowsDevice:
         return self.match(name, threshold)
 
     def verify_one_scout(self):
-        field = self.quantity.get("field")
+        # Native Windows game uses a slider, NOT a text input.
+        slider_min = self.quantity.get("field")
         region = self.quantity.get("region")
-        if not field or not region:
-            raise RuntimeError("Scout-määrän kenttä ja OCR-alue pitää kalibroida ennen lähetystä.")
-        self.tap(*field)
-        pg.hotkey("ctrl", "a")
-        pg.write("1")
-        pg.press("tab")
-        self.sleep(.4)
+        if not slider_min or not region:
+            raise RuntimeError("Kalibroi liukusäätimen vasen pää ja numeron OCR-alue.")
+        # Clicking the minimum position may select 1, but only OCR can approve.
+        self.tap(*slider_min)
+        self.sleep(.6)
         x1,y1,x2,y2 = region
         shot = self.take_screenshot()[y1:y2,x1:x2]
         if shot.size == 0:
-            raise RuntimeError("Virheellinen scout-määrän OCR-alue.")
+            raise RuntimeError("Virheellinen numeron OCR-alue.")
         gray = cv2.cvtColor(shot, cv2.COLOR_BGR2GRAY)
-        gray = cv2.resize(gray, None, fx=3, fy=3)
-        value = pytesseract.image_to_string(gray, config="--psm 7 -c tessedit_char_whitelist=0123456789").strip()
-        if value != "1":
-            raise RuntimeError(f"Scout-määrä ei vahvistunut yhdeksi: {value!r}")
-        self.log("Scout-määrä vahvistettu: 1")
+        gray = cv2.resize(gray, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
+        _, bw = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        readings = []
+        for sample in (gray, bw, 255-bw):
+            readings.append(pytesseract.image_to_string(
+                sample, config="--psm 7 -c tessedit_char_whitelist=0123456789"
+            ).strip())
+        if readings.count("1") < 2:
+            raise RuntimeError(f"Scout-määrä ei vahvistunut yhdeksi: {readings!r}. Go estetty.")
+        self.log("Scout-määrä vahvistettu OCR:llä: 1")
 
     def get_text_from_coords(self, a, b):
         image = self.take_screenshot()[a["y"]:b["y"],a["x"]:b["x"]]
