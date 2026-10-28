@@ -110,19 +110,28 @@ def run(villages):
         module.run()
         log("Alkuperäinen scouttausmoduuli suoritti kierroksen.")
     except Exception as exc:
+        import traceback
         log("VIRHE: "+repr(exc))
+        log(traceback.format_exc())
     finally:
         log("Valmis.")
 
 def start():
+    try:
+        root.villages = max(1, min(10, int(number.get())))
+    except ValueError:
+        log("VIRHE: Kyliä-kenttään pitää kirjoittaa numero 1–10.")
+        return
     if getattr(root,"worker",None) and root.worker.is_alive():
         log("Kierros on jo käynnissä.")
         return
     stop_event.clear()
-    root.iconify()
-    root.after(1000,launch)
+    log("KÄYNNISTYS: alkuperäinen scouttausmoduuli, kyliä: " + str(root.villages))
+    log("HUOM: Windows-koordinaatteja ei ole vielä vahvistettu. Valvo ensimmäistä ajoa.")
+    root.after(100,launch)
 
 def launch():
+    log("Scouttaus käynnistyy...")
     root.worker=threading.Thread(target=run,args=(root.villages,),daemon=True)
     root.worker.start()
 
