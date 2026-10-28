@@ -71,7 +71,7 @@ def point(event):
         config["field"]=points[0]
         save()
         mode=None
-        log("Scout-määrän syöttökenttä tallennettu.")
+        log("Liukusäätimen vasen pää tallennettu.")
     elif mode=="region" and len(points)==2:
         (a,b),(c,d)=points
         config["region"]=[min(a,c),min(b,d),max(a,c),max(b,d)]
@@ -84,8 +84,8 @@ canvas.pack(fill="both",expand=True,padx=8,pady=8)
 canvas.bind("<Button-1>",point)
 bar=ttk.Frame(root)
 bar.pack(fill="x")
-ttk.Button(bar,text="MÄÄRÄN KENTTÄ",command=lambda:choose("field")).pack(side="left",padx=4)
-ttk.Button(bar,text="MÄÄRÄN OCR-ALUE",command=lambda:choose("region")).pack(side="left",padx=4)
+ttk.Button(bar,text="LIUKUSÄÄTIMEN VASEN PÄÄ",command=lambda:choose("field")).pack(side="left",padx=4)
+ttk.Button(bar,text="NUMERON OCR-ALUE",command=lambda:choose("region")).pack(side="left",padx=4)
 ttk.Button(bar,text="KUVAKAAPPAUS",command=lambda:choose("preview")).pack(side="left",padx=4)
 output=tk.Text(root,height=12)
 output.pack(fill="x",padx=8,pady=6)
@@ -97,7 +97,7 @@ number.pack(anchor="w",padx=8)
 def run(villages):
     try:
         if not config.get("field") or not config.get("region"):
-            log("Kalibroi ensin scout-määrän kenttä ja OCR-alue.")
+            log("Kalibroi ensin liukusäätimen vasen pää ja numeron OCR-alue.")
             return
         templates=TemplateService(str(ROOT))
         device=WindowsDevice(templates,log,stop_event,config)
