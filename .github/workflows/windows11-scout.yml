@@ -1,0 +1,33 @@
+name: Windows 11 Scout EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [windows11-port]
+    paths:
+      - 'windows11/**'
+      - 'stronghold_kingdoms_bot/templates/**'
+      - '.github/workflows/windows11-scout.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r windows11/requirements.txt pyinstaller
+      - name: Build executable
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --onedir --windowed --name SHKScout --paths windows11 --add-data "stronghold_kingdoms_bot/templates;stronghold_kingdoms_bot/templates" windows11/app.py
+      - name: Upload Windows program
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHKScout-Windows11
+          path: dist/SHKScout/
+          if-no-files-found: error
