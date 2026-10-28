@@ -94,7 +94,7 @@ number.insert(0,"1")
 ttk.Label(root,text="Kyliä (alkuperäinen koodi käsittelee yhden kohteen/kylä/kierros):").pack(anchor="w",padx=8)
 number.pack(anchor="w",padx=8)
 
-def run():
+def run(villages):
     try:
         if not config.get("field") or not config.get("region"):
             log("Kalibroi ensin scout-määrän kenttä ja OCR-alue.")
@@ -103,7 +103,7 @@ def run():
         device=WindowsDevice(templates,log,stop_event,config)
         module=ScoutingModule(
             device_service=device,
-            config_override={"device_address":"windows","number_of_villages":int(number.get())},
+            config_override={"device_address":"windows","number_of_villages":villages},
             return_home=False
         )
         # Original module owns all scouting decisions and UI flow.
@@ -123,7 +123,7 @@ def start():
     root.after(1000,launch)
 
 def launch():
-    root.worker=threading.Thread(target=run,daemon=True)
+    root.worker=threading.Thread(target=run,args=(root.villages,),daemon=True)
     root.worker.start()
 
 def stop():
