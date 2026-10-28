@@ -21,7 +21,7 @@ class ScoutingModule:
         self.number_of_villages = config['number_of_villages']
 
         self.template_service = TemplateService(self.base_path)
-        self.device_service = DeviceService(
+        self.device_service = device_service if device_service is not None else DeviceService(
             self.device_address, self.template_service)
         self.utils_service = UtilsService(self.device_service) if return_home else None
         self.return_home = return_home
